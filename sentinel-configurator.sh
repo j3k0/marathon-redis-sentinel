@@ -12,9 +12,9 @@ function header() {
 }
 
 function serversList() {
-    for URL in $@; do
+    (for URL in $@; do
         curl -s $URL | python "`dirname $0`/app-tasks.py" || (echo " => URL failed loading: $URL" 1>&2)
-    done
+    done) | sort | uniq
 }
 
 function masterDefinition() {
