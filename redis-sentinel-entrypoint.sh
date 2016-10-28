@@ -10,4 +10,4 @@ while [ ! -e /etc/sentinel.conf ]; do
 done
 
 # Then launch redis-sentinel
-exec docker-entrypoint.sh /etc/sentinel.conf
+exec docker-entrypoint.sh redis-sentinel /etc/sentinel.conf
