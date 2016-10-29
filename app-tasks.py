@@ -10,9 +10,13 @@ except Exception as e:
 
 if 'app' in doc and 'tasks' in doc['app']:
     for task in doc['app']['tasks']:
-        if 'ports' in task and 'ipAddresses' in task:
+        port = doc['app']['ports'][0]
+        if 'ipAddresses' in task:
             for ipAddress in task['ipAddresses']:
-                for port in task['ports']:
+                if port > 0:
                     out.append(ipAddress['ipAddress'] + ' ' + str(port))
+                elif 'ports' in task:
+                    for port in task['ports']:
+                        out.append(ipAddress['ipAddress'] + ' ' + str(port))
 if len(out) > 0:
     print '\n'.join(out)
