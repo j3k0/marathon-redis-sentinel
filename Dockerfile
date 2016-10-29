@@ -1,10 +1,9 @@
 FROM redis:alpine
 
 # Install bash python curl
-RUN apk add --no-cache bash python curl
+RUN apk add --no-cache bash
 
 COPY redis-sentinel-entrypoint.sh /redis-sentinel-entrypoint.sh
-COPY app-tasks.py /app-tasks.py
 COPY sentinel-configurator.sh /sentinel-configurator.sh
 
 ENV QUORUM 1

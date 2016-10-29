@@ -11,12 +11,6 @@ function header() {
     fi
 }
 
-function serversList() {
-    (for URL in $@; do
-        curl -s $URL | python "`dirname $0`/app-tasks.py" || (echo " => URL failed loading: $URL" 1>&2)
-    done) | sort | uniq
-}
-
 function masterDefinition() {
 cat << EOF
 
@@ -27,26 +21,25 @@ sentinel parallel-syncs $1 $PARALLEL_SYNCS
 EOF
 }
 
-function slavesDefinitions() {
-    if [ "_$2" != "_" ]; then
-        NAME=$1
-        echo "$2" | awk '{ print "sentinel known-slave '$NAME'", $1, $2 }'
-    fi
+function slaveDefinition() {
+    echo "sentinel known-slave $1 $2 $3"
 }
 
 function makeConfig() {
   header
   for i in $1; do
     NAME=`echo $i | cut -d: -f1`
-    URLS=`echo $i | cut -d: -f2- | sed 's/,/ /g'`
-    SERVERS=`serversList "$URLS"`
-    NSERVERS=`echo "$SERVERS" | wc -l`
-    if [ "_$SERVERS" != "_" ]; then
-        masterDefinition $NAME `echo "$SERVERS" | head -1`
-    fi
-    if [ $NSERVERS -gt 1 ]; then
-        slavesDefinitions $NAME "`echo "$SERVERS" | tail +2`"
-    fi
+    PRT=`echo $i | cut -d: -f2`
+    SERVERS=`echo $i | cut -d: -f3- | sed 's/,/ /g'`
+    N=0
+    for SRV in $SERVERS; do
+        if [ $N = 0 ]; then
+            masterDefinition $NAME $SRV $PRT
+        else
+            slaveDefinition $NAME $SRV $PRT
+        fi
+        N=$((N + 1))
+    done
   done
 }
 
